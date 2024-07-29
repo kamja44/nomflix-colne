@@ -42,7 +42,7 @@ const Overview = styled.p`
 `;
 const Slider = styled.div`
   position: relative;
-  top: -100px;
+  top: -400px;
 `;
 
 const Row = styled(motion.div)`
@@ -145,6 +145,12 @@ const BigOverview = styled.p`
   font-weight: 500;
   color: ${(props) => props.theme.white.lighter};
 `;
+const Subtitle = styled.h1`
+  margin-bottom: 10px;
+  font-size: 28px;
+  font-weight: 800;
+  margin-left: 10px;
+`;
 
 function Home() {
   const navigate = useNavigate(); //useHistory => useNavigate
@@ -198,8 +204,10 @@ function Home() {
             <Title>{data?.results[0].title}</Title>
             <Overview>{data?.results[0].overview}</Overview>
           </Banner>
+
           <Slider>
             <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
+              <Subtitle>Now Playing</Subtitle>
               <Row
                 variants={rowVars}
                 initial="hidden"
