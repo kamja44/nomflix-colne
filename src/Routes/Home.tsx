@@ -51,9 +51,13 @@ const Box = styled(motion.div)<{ $bgPhoto: string }>`
   background-image: url(${(props) => props.$bgPhoto});
   background-size: cover;
   background-position: center center;
-  height: 100px;
-  color: red;
-  font-size: 50px;
+  height: 130px;
+  &:first-child {
+    transform-origin: center left;
+  }
+  &:last-child {
+    transform-origin: center right;
+  }
 `;
 const rowVars = {
   hidden: {
@@ -65,7 +69,33 @@ const rowVars = {
   exit: { x: -window.outerWidth - 5 }, // 화면크기 - 5(gap)
 };
 const offset = 6;
-
+const BoxVars = {
+  normal: {
+    scale: 1,
+  },
+  hover: {
+    scale: 1.3,
+    y: -50,
+    transition: {
+      delay: 0.5,
+      duration: 0.3,
+      type: "tween",
+    },
+  },
+};
+const Info = styled(motion.div)`
+  padding: 10px;
+  background-color: ${(props) => props.theme.black.lighter};
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+  h4 {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+  }
+`;
 function Home() {
   const { data, isLoading } = useQuery<IGetMoviesResult>(
     ["movies", "nowPlaying"],
@@ -80,6 +110,16 @@ function Home() {
       const maxIndex = Math.floor(totalMovies / offset) - 1;
       setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
     }
+  };
+  const infoVars = {
+    hover: {
+      opacity: 1,
+      transition: {
+        delay: 0.5,
+        duration: 0.3,
+        type: "tween",
+      },
+    },
   };
   const [leaving, setLeaving] = useState(false);
   const toggleLeaving = () => setLeaving((prev) => !prev);
@@ -111,9 +151,17 @@ function Home() {
                   .slice(offset * index, offset * index + offset)
                   .map((movie) => (
                     <Box
+                      transition={{ type: "tween" }}
+                      variants={BoxVars}
+                      whileHover="hover"
+                      initial="normal"
                       key={movie.id}
                       $bgPhoto={makeImagePath(movie.backdrop_path, "w500")}
-                    />
+                    >
+                      <Info variants={infoVars}>
+                        <h4>{movie.title}</h4>
+                      </Info>
+                    </Box>
                   ))}
               </Row>
             </AnimatePresence>
