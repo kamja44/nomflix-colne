@@ -178,7 +178,6 @@ const infoVars = {
 function Home() {
   const navigate = useNavigate(); //useHistory => useNavigate
   const bigMovieMatch = useMatch("/movies/:subTitle/:movieId");
-  console.log(bigMovieMatch);
   const { scrollY } = useScroll();
   const { data, isLoading } = useQuery<IGetMoviesResult>(
     ["movies", "nowPlaying"],
@@ -218,9 +217,18 @@ function Home() {
   };
   const onOverlayClick = () => navigate(`/`);
   const clickedMovie =
-    bigMovieMatch?.params.movieId &&
-    data?.results.find(
-      (movie) => movie.id + "" === bigMovieMatch.params.movieId
+    (bigMovieMatch?.params.movieId &&
+      data?.results.find(
+        (movie) => movie.id + "" === bigMovieMatch.params.movieId
+      )) ||
+    popular?.results.find(
+      (popularMovie) => popularMovie.id + "" === bigMovieMatch?.params.movieId
+    ) ||
+    topRate?.results.find(
+      (topMovie) => topMovie.id + "" === bigMovieMatch?.params.movieId
+    ) ||
+    upComing?.results.find(
+      (upComingMovie) => upComingMovie.id + "" === bigMovieMatch?.params.movieId
     );
 
   return (
@@ -237,8 +245,8 @@ function Home() {
             <Overview>{data?.results[0].overview}</Overview>
           </Banner>
           <SliderWrapper>
-            {Categories.map((item) => (
-              <Slider>
+            {Categories.map((item, sliderIndex) => (
+              <Slider key={sliderIndex}>
                 <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
                   <Subtitle>{item.subTitle}</Subtitle>
                   <Row
