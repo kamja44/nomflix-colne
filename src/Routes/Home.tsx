@@ -11,12 +11,7 @@ import {
 } from "../api";
 import styled from "styled-components";
 import { makeImagePath } from "../utils";
-import {
-  AnimatePresence,
-  motion,
-  useScroll,
-  useViewportScroll,
-} from "framer-motion";
+import { AnimatePresence, motion, useScroll } from "framer-motion";
 import { useState } from "react";
 import { useMatch, useNavigate } from "react-router-dom";
 
@@ -175,6 +170,25 @@ const infoVars = {
     },
   },
 };
+const Arrow = styled(motion.div)`
+  position: absolute;
+  transform: translateY(-50%);
+  margin-top: 60px;
+  z-index: 100;
+  width: 30px;
+  height: 30px;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  cursor: pointer;
+  opacity: 0;
+  font-size: 40px;
+`;
+const RightArrow = styled(Arrow)`
+  right: 10px;
+`;
+
 function Home() {
   const navigate = useNavigate(); //useHistory => useNavigate
   const bigMovieMatch = useMatch("/movies/:subTitle/:movieId");
@@ -191,27 +205,51 @@ function Home() {
   );
   const { data: upComing, isLoading: isupComingLoading } =
     useQuery<IGetUpComing>(["upcoming_movie", "upcoming"], getUpComing);
-  console.log(upComing);
-  const Categories = [
-    { subTitle: "Now Playing", data },
-    { subTitle: "Popular", data: popular },
-    { subTitle: "Top Rated", data: topRate },
-    { subTitle: "Upcoming", data: upComing },
-  ];
-  console.log(data);
+
   const [index, setIndex] = useState(0); // map 안쓰고 Row 만들기
-  const increaseIndex = () => {
-    if (data) {
+  const [indexpopular, setIndexpopular] = useState(0);
+  const [indextopRate, setIndextopRate] = useState(0);
+  const [indexupComing, setIndexupComing] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const Categories = [
+    { subTitle: "Now Playing", data, index },
+    { subTitle: "Popular", data: popular, indexpopular },
+    { subTitle: "Top Rated", data: topRate, indextopRate },
+    { subTitle: "Upcoming", data: upComing, indexupComing },
+  ];
+  const [leaving, setLeaving] = useState(false);
+  const toggleLeaving = () => setLeaving((prev) => !prev);
+  const increaseIndex = (category: any) => {
+    // if (category.data) {
+    //   if (leaving) return;
+    //   toggleLeaving();
+    //   const totalMovies = category.data.results.length - 1;
+    //   const maxIndex = Math.floor(totalMovies / offset) - 1;
+    //   setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
+    // }
+    if (category) {
       if (leaving) return;
       toggleLeaving();
-      const totalMovies = data.results.length - 1;
+      const totalMovies = category.data.results.length - 1;
+      const popularMovies = category.data.results.length - 1;
+      const topMovies = category.data.results.length - 1;
+      const upComingMovies = category.data.results.length - 1;
       const maxIndex = Math.floor(totalMovies / offset) - 1;
-      setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
+      const popularmaxIndex = Math.floor(popularMovies / offset) - 1;
+      const topmaxIndex = Math.floor(topMovies / offset) - 1;
+      const upComingmaxIndex = Math.floor(upComingMovies / offset) - 1;
+      if (category.subTitle === "Now Playing") {
+        setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
+      } else if (category.subTitle === "Popular") {
+        setIndexpopular((prev) => (prev === popularmaxIndex ? 0 : prev + 1));
+      } else if (category.subTitle === "Top Rated") {
+        setIndextopRate((prev) => (prev === topmaxIndex ? 0 : prev + 1));
+      } else if (category.subTitle === "Upcoming") {
+        setIndexupComing((prev) => (prev === upComingmaxIndex ? 0 : prev + 1));
+      }
     }
   };
 
-  const [leaving, setLeaving] = useState(false);
-  const toggleLeaving = () => setLeaving((prev) => !prev);
   const onBoxClicked = (movieId: number, subTitle: string) => {
     navigate(`/movies/${subTitle}/${movieId}`);
   };
@@ -233,52 +271,102 @@ function Home() {
 
   return (
     <Wrapper>
-      {isLoading ? (
+      {isLoading ||
+      isPopularLoading ||
+      istopRateLoading ||
+      isupComingLoading ? (
         <Loader>Loading</Loader>
       ) : (
         <>
           <Banner
-            onClick={increaseIndex}
             $bgPhoto={makeImagePath(data?.results[0].backdrop_path || "")}
           >
             <Title>{data?.results[0].title}</Title>
             <Overview>{data?.results[0].overview}</Overview>
           </Banner>
           <SliderWrapper>
-            {Categories.map((item, sliderIndex) => (
-              <Slider key={sliderIndex}>
-                <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
-                  <Subtitle>{item.subTitle}</Subtitle>
-                  <Row
-                    variants={rowVars}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    transition={{ type: "tween", duration: 1 }}
-                    key={index}
+            {Categories.map((category, sliderIndex) => (
+              <>
+                <Slider
+                  key={sliderIndex}
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
+                >
+                  <AnimatePresence
+                    initial={false}
+                    onExitComplete={toggleLeaving}
                   >
-                    {item.data?.results
-                      .slice(1)
-                      .slice(offset * index, offset * index + offset)
-                      .map((movie: any) => (
-                        <Box
-                          layoutId={`${movie.id} + ${item.subTitle}`}
-                          onClick={() => onBoxClicked(movie.id, item.subTitle)}
-                          transition={{ type: "tween" }}
-                          variants={BoxVars}
-                          whileHover="hover"
-                          initial="normal"
-                          key={movie.id}
-                          $bgPhoto={makeImagePath(movie.backdrop_path, "w500")}
-                        >
-                          <Info variants={infoVars}>
-                            <h4>{movie.title}</h4>
-                          </Info>
-                        </Box>
-                      ))}
-                  </Row>
-                </AnimatePresence>
-              </Slider>
+                    <Subtitle>{category.subTitle}</Subtitle>
+                    <Row
+                      variants={rowVars}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      transition={{ type: "tween", duration: 1 }}
+                      key={
+                        category.subTitle === "Now Playing"
+                          ? index
+                          : category.subTitle === "Popular"
+                          ? indexpopular
+                          : category.subTitle === "Top Rated"
+                          ? indextopRate
+                          : indexupComing
+                      }
+                    >
+                      {category.data?.results
+                        .slice(1)
+                        .slice(
+                          offset *
+                            (category.subTitle === "Now Playing"
+                              ? index
+                              : category.subTitle === "Popular"
+                              ? indexpopular
+                              : category.subTitle === "Top Rated"
+                              ? indextopRate
+                              : indexupComing),
+                          offset *
+                            (category.subTitle === "Now Playing"
+                              ? index
+                              : category.subTitle === "Popular"
+                              ? indexpopular
+                              : category.subTitle === "Top Rated"
+                              ? indextopRate
+                              : indexupComing) +
+                            offset
+                        )
+                        .map((movie: any) => (
+                          <Box
+                            layoutId={`${movie.id} + ${category.subTitle}`}
+                            onClick={() =>
+                              onBoxClicked(movie.id, category.subTitle)
+                            }
+                            transition={{ type: "tween" }}
+                            variants={BoxVars}
+                            whileHover="hover"
+                            initial="normal"
+                            key={movie.id}
+                            $bgPhoto={makeImagePath(
+                              movie.backdrop_path,
+                              "w500"
+                            )}
+                          >
+                            <Info variants={infoVars}>
+                              <h4>{movie.title}</h4>
+                            </Info>
+                          </Box>
+                        ))}
+                    </Row>
+                  </AnimatePresence>
+                  <RightArrow
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: isHovered ? 1 : 0 }}
+                    transition={{ duration: 0.3 }}
+                    onClick={() => increaseIndex(category)}
+                  >
+                    ▶
+                  </RightArrow>
+                </Slider>
+              </>
             ))}
           </SliderWrapper>
           <AnimatePresence>
