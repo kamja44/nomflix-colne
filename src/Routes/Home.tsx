@@ -1,5 +1,14 @@
 import { useQuery } from "react-query";
-import { getMovies, IGetMoviesResult } from "../api";
+import {
+  getMovies,
+  getPopular,
+  getTopRated,
+  getUpComing,
+  IGetMoviesResult,
+  IGetPopularResult,
+  IGetTopRated,
+  IGetUpComing,
+} from "../api";
 import styled from "styled-components";
 import { makeImagePath } from "../utils";
 import {
@@ -43,6 +52,7 @@ const Overview = styled.p`
 const Slider = styled.div`
   position: relative;
   top: -400px;
+  height: 200px;
 `;
 
 const Row = styled(motion.div)`
@@ -151,15 +161,45 @@ const Subtitle = styled.h1`
   font-weight: 800;
   margin-left: 10px;
 `;
-
+const SliderWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+const infoVars = {
+  hover: {
+    opacity: 1,
+    transition: {
+      delay: 0.5,
+      duration: 0.3,
+      type: "tween",
+    },
+  },
+};
 function Home() {
   const navigate = useNavigate(); //useHistory => useNavigate
-  const bigMovieMatch = useMatch("/movies/:movieId");
+  const bigMovieMatch = useMatch("/movies/:subTitle/:movieId");
+  console.log(bigMovieMatch);
   const { scrollY } = useScroll();
   const { data, isLoading } = useQuery<IGetMoviesResult>(
     ["movies", "nowPlaying"],
     getMovies
   );
+  const { data: popular, isLoading: isPopularLoading } =
+    useQuery<IGetPopularResult>(["popular_movie", "popular"], getPopular);
+  const { data: topRate, isLoading: istopRateLoading } = useQuery<IGetTopRated>(
+    ["topRate_movie", "topRate"],
+    getTopRated
+  );
+  const { data: upComing, isLoading: isupComingLoading } =
+    useQuery<IGetUpComing>(["upcoming_movie", "upcoming"], getUpComing);
+  console.log(upComing);
+  const Categories = [
+    { subTitle: "Now Playing", data },
+    { subTitle: "Popular", data: popular },
+    { subTitle: "Top Rated", data: topRate },
+    { subTitle: "Upcoming", data: upComing },
+  ];
+  console.log(data);
   const [index, setIndex] = useState(0); // map 안쓰고 Row 만들기
   const increaseIndex = () => {
     if (data) {
@@ -170,20 +210,11 @@ function Home() {
       setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
     }
   };
-  const infoVars = {
-    hover: {
-      opacity: 1,
-      transition: {
-        delay: 0.5,
-        duration: 0.3,
-        type: "tween",
-      },
-    },
-  };
+
   const [leaving, setLeaving] = useState(false);
   const toggleLeaving = () => setLeaving((prev) => !prev);
-  const onBoxClicked = (movieId: number) => {
-    navigate(`/movies/${movieId}`);
+  const onBoxClicked = (movieId: number, subTitle: string) => {
+    navigate(`/movies/${subTitle}/${movieId}`);
   };
   const onOverlayClick = () => navigate(`/`);
   const clickedMovie =
@@ -191,6 +222,7 @@ function Home() {
     data?.results.find(
       (movie) => movie.id + "" === bigMovieMatch.params.movieId
     );
+
   return (
     <Wrapper>
       {isLoading ? (
@@ -204,40 +236,43 @@ function Home() {
             <Title>{data?.results[0].title}</Title>
             <Overview>{data?.results[0].overview}</Overview>
           </Banner>
-
-          <Slider>
-            <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
-              <Subtitle>Now Playing</Subtitle>
-              <Row
-                variants={rowVars}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                transition={{ type: "tween", duration: 1 }}
-                key={index}
-              >
-                {data?.results
-                  .slice(1)
-                  .slice(offset * index, offset * index + offset)
-                  .map((movie) => (
-                    <Box
-                      layoutId={movie.id + ""}
-                      onClick={() => onBoxClicked(movie.id)}
-                      transition={{ type: "tween" }}
-                      variants={BoxVars}
-                      whileHover="hover"
-                      initial="normal"
-                      key={movie.id}
-                      $bgPhoto={makeImagePath(movie.backdrop_path, "w500")}
-                    >
-                      <Info variants={infoVars}>
-                        <h4>{movie.title}</h4>
-                      </Info>
-                    </Box>
-                  ))}
-              </Row>
-            </AnimatePresence>
-          </Slider>
+          <SliderWrapper>
+            {Categories.map((item) => (
+              <Slider>
+                <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
+                  <Subtitle>{item.subTitle}</Subtitle>
+                  <Row
+                    variants={rowVars}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    transition={{ type: "tween", duration: 1 }}
+                    key={index}
+                  >
+                    {item.data?.results
+                      .slice(1)
+                      .slice(offset * index, offset * index + offset)
+                      .map((movie: any) => (
+                        <Box
+                          layoutId={`${movie.id} + ${item.subTitle}`}
+                          onClick={() => onBoxClicked(movie.id, item.subTitle)}
+                          transition={{ type: "tween" }}
+                          variants={BoxVars}
+                          whileHover="hover"
+                          initial="normal"
+                          key={movie.id}
+                          $bgPhoto={makeImagePath(movie.backdrop_path, "w500")}
+                        >
+                          <Info variants={infoVars}>
+                            <h4>{movie.title}</h4>
+                          </Info>
+                        </Box>
+                      ))}
+                  </Row>
+                </AnimatePresence>
+              </Slider>
+            ))}
+          </SliderWrapper>
           <AnimatePresence>
             {bigMovieMatch ? (
               <>
@@ -250,7 +285,7 @@ function Home() {
                   style={{
                     top: scrollY.get() + 50,
                   }}
-                  layoutId={bigMovieMatch.params.movieId}
+                  layoutId={`${bigMovieMatch.params.movieId} + ${bigMovieMatch.params.subTitle}`}
                 >
                   {clickedMovie && (
                     <>
