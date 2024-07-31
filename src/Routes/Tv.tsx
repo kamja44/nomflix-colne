@@ -1,16 +1,13 @@
 import { useQuery } from "react-query";
 import {
-  getDetailMovie,
-  getMovies,
-  getPopular,
-  getTopRated,
+  getOnAir,
+  getPopularTv,
+  getTopTv,
   getTvs,
-  getUpComing,
-  IGetMoviesResult,
-  IGetPopularResult,
-  IGetTopRated,
+  IGetOnAir,
+  IGetPopularTv,
+  IGetTopTv,
   IGetTv,
-  IGetUpComing,
 } from "../api";
 import styled from "styled-components";
 import { makeImagePath } from "../utils";
@@ -195,29 +192,30 @@ const RightArrow = styled(Arrow)`
 
 function Tv() {
   const navigate = useNavigate(); //useHistory => useNavigate
-  const bigMovieMatch = useMatch("/tv/:subTitle/:movieId");
+  const bigMovieMatch = useMatch("/tv/:subTitle/:tvId");
   const { scrollY } = useScroll();
   const { data, isLoading } = useQuery<IGetTv>(["tvs", "airingToday"], getTvs);
-  // 아래 변경해야함
   const { data: popular, isLoading: isPopularLoading } =
-    useQuery<IGetPopularResult>(["popular_movie", "popular"], getPopular);
-  const { data: topRate, isLoading: istopRateLoading } = useQuery<IGetTopRated>(
-    ["topRate_movie", "topRate"],
-    getTopRated
+    useQuery<IGetPopularTv>(["populartvs", "populartv"], getPopularTv);
+  const { data: onAir, isLoading: isOnAirLoading } = useQuery<IGetOnAir>(
+    ["onAir", "onAirs"],
+    getOnAir
   );
-  const { data: upComing, isLoading: isupComingLoading } =
-    useQuery<IGetUpComing>(["upcoming_movie", "upcoming"], getUpComing);
+  const { data: topRate, isLoading: istopRateLoading } = useQuery<IGetTopTv>(
+    ["getTopTvs", "getTopTv"],
+    getTopTv
+  );
 
   const [index, setIndex] = useState(0); // map 안쓰고 Row 만들기
   const [indexpopular, setIndexpopular] = useState(0);
   const [indextopRate, setIndextopRate] = useState(0);
-  const [indexupComing, setIndexupComing] = useState(0);
+  const [indexonAir, setindexonAir] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const Categories = [
-    { subTitle: "Now Playing", data, index },
+    { subTitle: "Airing Today", data, index },
+    { subTitle: "On The Air", data: onAir, indexonAir },
     { subTitle: "Popular", data: popular, indexpopular },
     { subTitle: "Top Rated", data: topRate, indextopRate },
-    { subTitle: "Upcoming", data: upComing, indexupComing },
   ];
   const [leaving, setLeaving] = useState(false);
   const toggleLeaving = () => setLeaving((prev) => !prev);
@@ -233,43 +231,39 @@ function Tv() {
       const popularmaxIndex = Math.floor(popularMovies / offset) - 1;
       const topmaxIndex = Math.floor(topMovies / offset) - 1;
       const upComingmaxIndex = Math.floor(upComingMovies / offset) - 1;
-      if (category.subTitle === "Now Playing") {
+      if (category.subTitle === "Airing Today") {
         setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
       } else if (category.subTitle === "Popular") {
         setIndexpopular((prev) => (prev === popularmaxIndex ? 0 : prev + 1));
       } else if (category.subTitle === "Top Rated") {
         setIndextopRate((prev) => (prev === topmaxIndex ? 0 : prev + 1));
-      } else if (category.subTitle === "Upcoming") {
-        setIndexupComing((prev) => (prev === upComingmaxIndex ? 0 : prev + 1));
+      } else if (category.subTitle === "On The Air") {
+        setindexonAir((prev) => (prev === upComingmaxIndex ? 0 : prev + 1));
       }
     }
   };
-  // let detailMovie;
-  const onBoxClicked = (movieId: number, subTitle: string) => {
-    navigate(`/movies/${subTitle}/${movieId}`);
+  const onBoxClicked = (tvId: number, subTitle: string) => {
+    navigate(`/tv/${subTitle}/${tvId}`);
   };
-  const onOverlayClick = () => navigate(`/`);
+  const onOverlayClick = () => navigate(`/tv`);
   const clickedMovie =
-    (bigMovieMatch?.params.movieId &&
+    (bigMovieMatch?.params.tvId &&
       data?.results.find(
-        (movie) => movie.id + "" === bigMovieMatch.params.movieId
+        (movie) => movie.id + "" === bigMovieMatch.params.tvId
       )) ||
     popular?.results.find(
-      (popularMovie) => popularMovie.id + "" === bigMovieMatch?.params.movieId
+      (popularMovie) => popularMovie.id + "" === bigMovieMatch?.params.tvId
     ) ||
     topRate?.results.find(
-      (topMovie) => topMovie.id + "" === bigMovieMatch?.params.movieId
+      (topMovie) => topMovie.id + "" === bigMovieMatch?.params.tvId
     ) ||
-    upComing?.results.find(
-      (upComingMovie) => upComingMovie.id + "" === bigMovieMatch?.params.movieId
+    onAir?.results.find(
+      (onAirMovie) => onAirMovie.id + "" === bigMovieMatch?.params.tvId
     );
 
   return (
     <Wrapper>
-      {isLoading ||
-      isPopularLoading ||
-      istopRateLoading ||
-      isupComingLoading ? (
+      {isLoading || isPopularLoading || istopRateLoading || isOnAirLoading ? (
         <Loader>Loading</Loader>
       ) : (
         <>
@@ -299,34 +293,34 @@ function Tv() {
                       exit="exit"
                       transition={{ type: "tween", duration: 1 }}
                       key={
-                        category.subTitle === "Now Playing"
+                        category.subTitle === "Airing Today"
                           ? index
                           : category.subTitle === "Popular"
                           ? indexpopular
                           : category.subTitle === "Top Rated"
                           ? indextopRate
-                          : indexupComing
+                          : indexonAir
                       }
                     >
                       {category.data?.results
                         .slice(1)
                         .slice(
                           offset *
-                            (category.subTitle === "Now Playing"
+                            (category.subTitle === "Airing Today"
                               ? index
                               : category.subTitle === "Popular"
                               ? indexpopular
                               : category.subTitle === "Top Rated"
                               ? indextopRate
-                              : indexupComing),
+                              : indexonAir),
                           offset *
-                            (category.subTitle === "Now Playing"
+                            (category.subTitle === "Airing Today"
                               ? index
                               : category.subTitle === "Popular"
                               ? indexpopular
                               : category.subTitle === "Top Rated"
                               ? indextopRate
-                              : indexupComing) +
+                              : indexonAir) +
                             offset
                         )
                         .map((movie: any) => (
@@ -376,7 +370,7 @@ function Tv() {
                   style={{
                     top: scrollY.get() + 50,
                   }}
-                  layoutId={`${bigMovieMatch.params.movieId} + ${bigMovieMatch.params.subTitle}`}
+                  layoutId={`${bigMovieMatch.params.tvId} + ${bigMovieMatch.params.subTitle}`}
                 >
                   {clickedMovie && (
                     <>
@@ -389,7 +383,7 @@ function Tv() {
                         }}
                       />
                       {/* <BigTitle>{clickedMovie.name}</BigTitle> */}
-                      <DetailMovie />
+                      {/* <DetailMovie /> */}
                       {/* <BigOverview>{clickedMovie.overview}</BigOverview> */}
                     </>
                   )}
