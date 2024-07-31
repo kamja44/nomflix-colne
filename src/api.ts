@@ -138,6 +138,7 @@ export interface IGetTvDetail {
   genres: IDetailGetres[];
   overview: string;
   vote_average: number;
+  homepage: string;
 }
 export function getTvDetail(series_id: number) {
   return fetch(`${BASE_PATH}/tv/${series_id}?api_key=${API_KEY}`).then(

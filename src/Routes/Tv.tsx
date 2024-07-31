@@ -15,6 +15,7 @@ import { AnimatePresence, motion, useScroll } from "framer-motion";
 import { useState } from "react";
 import { useMatch, useNavigate } from "react-router-dom";
 import DetailMovie from "../Components/DetailMovie";
+import DetailTv from "../Components/DetailTv";
 
 const Wrapper = styled.div`
   background-color: black;
@@ -382,9 +383,8 @@ function Tv() {
                           )})`,
                         }}
                       />
-                      {/* <BigTitle>{clickedMovie.name}</BigTitle> */}
-                      {/* <DetailMovie /> */}
-                      {/* <BigOverview>{clickedMovie.overview}</BigOverview> */}
+                      <BigTitle>{clickedMovie.name}</BigTitle>
+                      <DetailTv />
                     </>
                   )}
                 </BigMovie>
