@@ -199,6 +199,7 @@ function Home() {
     ["movies", "nowPlaying"],
     getMovies
   );
+  console.log(data);
   const { data: popular, isLoading: isPopularLoading } =
     useQuery<IGetPopularResult>(["popular_movie", "popular"], getPopular);
   const { data: topRate, isLoading: istopRateLoading } = useQuery<IGetTopRated>(

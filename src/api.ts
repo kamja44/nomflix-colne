@@ -80,3 +80,67 @@ export function getDetailMovie(movieId: number) {
     (response) => response.json()
   );
 }
+
+// TV
+interface ITv {
+  backdrop_path: string;
+  first_air_date: string;
+  poster_path: string;
+  id: number;
+  name: string;
+  overview: string;
+  origin_country: string[];
+}
+export interface IGetTv {
+  results: ITv[];
+}
+export function getTvs() {
+  return fetch(`${BASE_PATH}/tv/airing_today?api_key=${API_KEY}`).then(
+    (response) => response.json()
+  );
+}
+export interface IGetOnAir {
+  results: ITv[];
+}
+export function getOnAir() {
+  return fetch(`${BASE_PATH}/tv/on_the_air?api_key=${API_KEY}`).then(
+    (response) => response.json()
+  );
+}
+export interface IGetPopularTv {
+  results: ITv[];
+}
+export function getPopularTv() {
+  return fetch(`${BASE_PATH}/tv/popular?api_key=${API_KEY}`).then((response) =>
+    response.json()
+  );
+}
+export interface IGetTopTv {
+  results: ITv[];
+}
+export function getTopTv() {
+  return fetch(`${BASE_PATH}/tv/top_rated?api_key=${API_KEY}`).then(
+    (response) => response.json()
+  );
+}
+interface IDetailCreated_by {
+  name: string;
+}
+interface IDetailGetres {
+  id: number;
+  name: string;
+}
+export interface IGetTvDetail {
+  adult: string;
+  backdrop_path: string;
+  created_by: IDetailCreated_by[];
+  episode_run_time: number[];
+  genres: IDetailGetres[];
+  overview: string;
+  vote_average: number;
+}
+export function getTvDetail(series_id: number) {
+  return fetch(`${BASE_PATH}/tv/${series_id}?api_key=${API_KEY}`).then(
+    (response) => response.json()
+  );
+}
