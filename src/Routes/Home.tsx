@@ -60,7 +60,7 @@ const Row = styled(motion.div)`
   width: 100%;
 `;
 const Box = styled(motion.div)<{ $bgPhoto: string }>`
-  background-color: wheat;
+  background-color: black;
   background-image: url(${(props) => props.$bgPhoto});
   background-size: cover;
   background-position: center center;

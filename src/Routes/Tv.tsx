@@ -60,7 +60,7 @@ const Row = styled(motion.div)`
   width: 100%;
 `;
 const Box = styled(motion.div)<{ $bgPhoto: string }>`
-  background-color: wheat;
+  background-color: black;
   background-image: url(${(props) => props.$bgPhoto});
   background-size: cover;
   background-position: center center;
@@ -261,7 +261,6 @@ function Tv() {
     onAir?.results.find(
       (onAirMovie) => onAirMovie.id + "" === bigMovieMatch?.params.tvId
     );
-
   return (
     <Wrapper>
       {isLoading || isPopularLoading || istopRateLoading || isOnAirLoading ? (
@@ -341,7 +340,7 @@ function Tv() {
                             )}
                           >
                             <Info variants={infoVars}>
-                              <h4>{movie.title}</h4>
+                              <h4>{movie.name}</h4>
                             </Info>
                           </Box>
                         ))}
