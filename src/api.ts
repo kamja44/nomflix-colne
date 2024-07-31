@@ -62,3 +62,21 @@ export function getUpComing() {
     (response) => response.json()
   );
 }
+interface IDetailGenres {
+  id: number;
+  name: string;
+}
+export interface IDetailMovie {
+  adult: boolean;
+  genres: IDetailGenres[];
+  homepage: string;
+  overview: string;
+  popularity: number;
+  runtime: number;
+  vote_average: number;
+}
+export function getDetailMovie(movieId: number) {
+  return fetch(`${BASE_PATH}/movie/${movieId}?api_key=${API_KEY}`).then(
+    (response) => response.json()
+  );
+}

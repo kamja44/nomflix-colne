@@ -1,5 +1,6 @@
 import { useQuery } from "react-query";
 import {
+  getDetailMovie,
   getMovies,
   getPopular,
   getTopRated,
@@ -14,6 +15,7 @@ import { makeImagePath } from "../utils";
 import { AnimatePresence, motion, useScroll } from "framer-motion";
 import { useState } from "react";
 import { useMatch, useNavigate } from "react-router-dom";
+import DetailMovie from "../Components/DetailMovie";
 
 const Wrapper = styled.div`
   background-color: black;
@@ -47,7 +49,7 @@ const Overview = styled.p`
 const Slider = styled.div`
   position: relative;
   top: -400px;
-  height: 200px;
+  height: 400px;
 `;
 
 const Row = styled(motion.div)`
@@ -62,7 +64,7 @@ const Box = styled(motion.div)<{ $bgPhoto: string }>`
   background-image: url(${(props) => props.$bgPhoto});
   background-size: cover;
   background-position: center center;
-  height: 130px;
+  height: 300px;
   cursor: pointer;
   &:first-child {
     transform-origin: center left;
@@ -173,10 +175,10 @@ const infoVars = {
 const Arrow = styled(motion.div)`
   position: absolute;
   transform: translateY(-50%);
-  margin-top: 60px;
+  margin-top: 150px;
   z-index: 100;
-  width: 30px;
-  height: 30px;
+  width: 50px;
+  height: 50px;
   color: white;
   display: flex;
   justify-content: center;
@@ -220,13 +222,6 @@ function Home() {
   const [leaving, setLeaving] = useState(false);
   const toggleLeaving = () => setLeaving((prev) => !prev);
   const increaseIndex = (category: any) => {
-    // if (category.data) {
-    //   if (leaving) return;
-    //   toggleLeaving();
-    //   const totalMovies = category.data.results.length - 1;
-    //   const maxIndex = Math.floor(totalMovies / offset) - 1;
-    //   setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
-    // }
     if (category) {
       if (leaving) return;
       toggleLeaving();
@@ -249,7 +244,7 @@ function Home() {
       }
     }
   };
-
+  // let detailMovie;
   const onBoxClicked = (movieId: number, subTitle: string) => {
     navigate(`/movies/${subTitle}/${movieId}`);
   };
@@ -394,7 +389,8 @@ function Home() {
                         }}
                       />
                       <BigTitle>{clickedMovie.title}</BigTitle>
-                      <BigOverview>{clickedMovie.overview}</BigOverview>
+                      <DetailMovie />
+                      {/* <BigOverview>{clickedMovie.overview}</BigOverview> */}
                     </>
                   )}
                 </BigMovie>

@@ -7,7 +7,7 @@ import {
   useScroll,
 } from "framer-motion";
 import { Link, useMatch, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 const Nav = styled(motion.nav)`
@@ -20,6 +20,7 @@ const Nav = styled(motion.nav)`
   font-size: 14px;
   padding: 20px 60px;
   color: white;
+  z-index: 1000;
 `;
 
 const Col = styled.div`
