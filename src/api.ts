@@ -145,3 +145,21 @@ export function getTvDetail(series_id: number) {
     (response) => response.json()
   );
 }
+interface ISearch {
+  backdrop_path: string;
+  id: number;
+  title: string;
+  overview: string;
+  poster_path: string;
+  media_type: string;
+  release_date: string;
+  vote_average: number;
+}
+export interface IMultiSearch {
+  results: ISearch[];
+}
+export function getMultiSearch(keyword: string) {
+  return fetch(
+    `${BASE_PATH}/search/multi?api_key=${API_KEY}&query=${keyword}`
+  ).then((response) => response.json());
+}
