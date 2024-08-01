@@ -199,7 +199,6 @@ function Home() {
     ["movies", "nowPlaying"],
     getMovies
   );
-  console.log(data);
   const { data: popular, isLoading: isPopularLoading } =
     useQuery<IGetPopularResult>(["popular_movie", "popular"], getPopular);
   const { data: topRate, isLoading: istopRateLoading } = useQuery<IGetTopRated>(
@@ -245,7 +244,6 @@ function Home() {
       }
     }
   };
-  // let detailMovie;
   const onBoxClicked = (movieId: number, subTitle: string) => {
     navigate(`/movies/${subTitle}/${movieId}`);
   };
@@ -391,7 +389,6 @@ function Home() {
                       />
                       <BigTitle>{clickedMovie.title}</BigTitle>
                       <DetailMovie />
-                      {/* <BigOverview>{clickedMovie.overview}</BigOverview> */}
                     </>
                   )}
                 </BigMovie>

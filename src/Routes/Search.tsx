@@ -1,9 +1,12 @@
 import { useQuery } from "react-query";
-import { useLocation } from "react-router-dom";
-import { getMultiSearch, IMultiSearch } from "../api";
+import { useLocation, useMatch, useNavigate } from "react-router-dom";
+import { getMultiSearch, IMultiSearch, ISearch } from "../api";
 import styled from "styled-components";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion, useScroll } from "framer-motion";
 import { makeImagePath } from "../utils";
+import DetailMovie from "../Components/DetailMovie";
+import { useEffect, useState } from "react";
+import DetailSearch from "../Components/DetailSearch";
 const Wrapper = styled.div`
   width: 100%;
   height: 100vh;
@@ -80,20 +83,80 @@ const infoVars = {
     },
   },
 };
+
+const Overlay = styled(motion.div)`
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  opacity: 0;
+`;
+const BigMovie = styled(motion.div)`
+  position: absolute;
+  width: 40vw;
+  height: 80vh;
+  right: 0;
+  left: 0;
+  margin: 0 auto;
+  background-color: ${(props) => props.theme.black.lighter};
+  border-radius: 15px;
+  overflow: hidden;
+`;
+const BigCover = styled.div`
+  background-size: cover;
+  background-position: center center;
+  width: 100%;
+  height: 500px;
+`;
+
+const BigTitle = styled.h3`
+  color: ${(props) => props.theme.white.lighter};
+  text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+  position: relative;
+  top: -40px;
+  padding: 10px;
+`;
+
 function Search() {
+  const [searchClicked, setSearchClicked] = useState<ISearch>();
+  const [boxId, setBoxId] = useState(0);
+  const [overlay, setOverlay] = useState(false);
+  const { scrollY } = useScroll();
+  const navigate = useNavigate();
   const location = useLocation();
   const keyword = new URLSearchParams(location.search).get("keyword");
+  const searchIdMatch = location.search === `?keyword=${keyword}`;
   const { data, isLoading } = useQuery<IMultiSearch>(
     ["search", "multiSearch"],
     () => getMultiSearch(keyword!)
   );
-  console.log(data);
+  // console.log(data);
+  const onBoxClicked = (id: number) => {
+    navigate(`/search/detail?keyword=${keyword}`);
+    setBoxId(id);
+    setOverlay(true);
+  };
+  useEffect(() => {
+    if (data) {
+      const foundSearch = data.results.find((search) => search.id === boxId);
+      setSearchClicked(foundSearch);
+    }
+  }, [boxId]);
+  const onOverlayClick = () => {
+    navigate(`/search?keyword=${keyword}`);
+    setOverlay(false);
+    console.log(`setOverlay ${overlay}`);
+  };
   return (
     <Wrapper>
       <Keyword>검색결과 {keyword}</Keyword>
       <SearchWrapper>
         {data?.results.map((search) => (
           <Box
+            onClick={() => onBoxClicked(search.id)}
             $bgPhoto={makeImagePath(
               search.backdrop_path ? search.backdrop_path : search.poster_path,
               "w500"
@@ -103,6 +166,8 @@ function Search() {
             variants={BoxVars}
             whileHover="hover"
             initial="normal"
+            // layoutId={search.id + ""}
+            layoutId={searchClicked?.id + ""}
           >
             {search.backdrop_path || search.poster_path
               ? null
@@ -113,6 +178,38 @@ function Search() {
           </Box>
         ))}
       </SearchWrapper>
+      <AnimatePresence>
+        {searchClicked && searchIdMatch && overlay ? (
+          <>
+            <Overlay
+              exit={{ opacity: 0 }}
+              onClick={onOverlayClick}
+              animate={{ opacity: 1 }}
+            />
+            <BigMovie
+              style={{
+                top: scrollY.get() + 50,
+              }}
+              layoutId={`${searchClicked.id}`}
+            >
+              {searchClicked && (
+                <>
+                  <BigCover
+                    style={{
+                      backgroundImage: `linear-gradient(to top, black, transparent), url(${makeImagePath(
+                        searchClicked.backdrop_path,
+                        "w500"
+                      )})`,
+                    }}
+                  />
+                  <BigTitle>{searchClicked.title}</BigTitle>
+                  <DetailSearch searchClicked={searchClicked} />
+                </>
+              )}
+            </BigMovie>
+          </>
+        ) : null}
+      </AnimatePresence>
     </Wrapper>
   );
 }

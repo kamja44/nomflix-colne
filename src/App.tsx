@@ -14,6 +14,7 @@ function App() {
         <Route path="/tv" element={<Tv />} />
         <Route path="/tv/:subTitle/:id" element={<Tv />} />
         <Route path="/search" element={<Search />} />
+        <Route path="/search/:id" element={<Search />} />
       </Routes>
     </Router>
   );

@@ -145,9 +145,11 @@ export function getTvDetail(series_id: number) {
     (response) => response.json()
   );
 }
-interface ISearch {
+export interface ISearch {
+  adult: boolean;
   backdrop_path: string;
   name: string;
+  original_language: string;
   id: number;
   title: string;
   overview: string;
