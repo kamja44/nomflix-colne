@@ -42,6 +42,44 @@ const Box = styled(motion.div)<{ $bgPhoto: string }>`
   font-weight: 800;
   color: ${(props) => props.theme.black.darker};
 `;
+const Info = styled(motion.div)`
+  padding: 10px;
+  background-color: ${(props) => props.theme.black.lighter};
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+  h4 {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: ${(props) => props.theme.white.lighter};
+  }
+`;
+const BoxVars = {
+  normal: {
+    scale: 1,
+  },
+  hover: {
+    scale: 1.3,
+    y: -50,
+    transition: {
+      delay: 0.5,
+      duration: 0.3,
+      type: "tween",
+    },
+  },
+};
+const infoVars = {
+  hover: {
+    opacity: 1,
+    transition: {
+      delay: 0.5,
+      duration: 0.3,
+      type: "tween",
+    },
+  },
+};
 function Search() {
   const location = useLocation();
   const keyword = new URLSearchParams(location.search).get("keyword");
@@ -49,7 +87,6 @@ function Search() {
     ["search", "multiSearch"],
     () => getMultiSearch(keyword!)
   );
-  // console.log(keyword);
   console.log(data);
   return (
     <Wrapper>
@@ -62,10 +99,17 @@ function Search() {
               "w500"
             )}
             key={search.id}
+            transition={{ type: "tween" }}
+            variants={BoxVars}
+            whileHover="hover"
+            initial="normal"
           >
             {search.backdrop_path || search.poster_path
               ? null
               : "Image Not Founded"}
+            <Info variants={infoVars}>
+              <h4>{search.name || search.title}</h4>
+            </Info>
           </Box>
         ))}
       </SearchWrapper>

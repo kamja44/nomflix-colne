@@ -147,6 +147,7 @@ export function getTvDetail(series_id: number) {
 }
 interface ISearch {
   backdrop_path: string;
+  name: string;
   id: number;
   title: string;
   overview: string;
