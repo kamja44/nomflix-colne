@@ -1,6 +1,4 @@
-import { useQuery } from "react-query";
-import { getTvDetail, IGetTvDetail, ISearch } from "../api";
-import { useParams } from "react-router-dom";
+import { ISearch } from "../api";
 import styled from "styled-components";
 const Container = styled.div`
   padding-left: 10px;

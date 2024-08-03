@@ -25,7 +25,7 @@ const Overview = styled.p`
 `;
 
 function DetailMovie() {
-  const { id, subTitle } = useParams<{
+  const { id } = useParams<{
     id: string;
     subTitle: string;
   }>();

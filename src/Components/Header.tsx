@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import {
-  animate,
   motion,
   useAnimation,
   useMotionValueEvent,

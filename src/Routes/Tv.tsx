@@ -14,7 +14,6 @@ import { makeImagePath } from "../utils";
 import { AnimatePresence, motion, useScroll } from "framer-motion";
 import { useState } from "react";
 import { useMatch, useNavigate } from "react-router-dom";
-import DetailMovie from "../Components/DetailMovie";
 import DetailTv from "../Components/DetailTv";
 
 const Wrapper = styled.div`
@@ -118,7 +117,7 @@ const Overlay = styled(motion.div)`
   background-color: rgba(0, 0, 0, 0.7);
   opacity: 0;
 `;
-const BigMovie = styled(motion.div)`
+const BigTv = styled(motion.div)`
   position: absolute;
   width: 40vw;
   height: 80vh;
@@ -193,7 +192,7 @@ const RightArrow = styled(Arrow)`
 
 function Tv() {
   const navigate = useNavigate(); //useHistory => useNavigate
-  const bigMovieMatch = useMatch("/tv/:subTitle/:tvId");
+  const bigTvMatch = useMatch("/tv/:subTitle/:tvId");
   const { scrollY } = useScroll();
   const { data, isLoading } = useQuery<IGetTv>(["tvs", "airingToday"], getTvs);
   const { data: popular, isLoading: isPopularLoading } =
@@ -247,19 +246,19 @@ function Tv() {
     navigate(`/tv/${subTitle}/${tvId}`);
   };
   const onOverlayClick = () => navigate(`/tv`);
-  const clickedMovie =
-    (bigMovieMatch?.params.tvId &&
+  const clickedTv =
+    (bigTvMatch?.params.tvId &&
       data?.results.find(
-        (movie) => movie.id + "" === bigMovieMatch.params.tvId
+        (movie) => movie.id + "" === bigTvMatch.params.tvId
       )) ||
     popular?.results.find(
-      (popularMovie) => popularMovie.id + "" === bigMovieMatch?.params.tvId
+      (popularMovie) => popularMovie.id + "" === bigTvMatch?.params.tvId
     ) ||
     topRate?.results.find(
-      (topMovie) => topMovie.id + "" === bigMovieMatch?.params.tvId
+      (topMovie) => topMovie.id + "" === bigTvMatch?.params.tvId
     ) ||
     onAir?.results.find(
-      (onAirMovie) => onAirMovie.id + "" === bigMovieMatch?.params.tvId
+      (onAirMovie) => onAirMovie.id + "" === bigTvMatch?.params.tvId
     );
   return (
     <Wrapper>
@@ -359,34 +358,34 @@ function Tv() {
             ))}
           </SliderWrapper>
           <AnimatePresence>
-            {bigMovieMatch ? (
+            {bigTvMatch ? (
               <>
                 <Overlay
                   exit={{ opacity: 0 }}
                   onClick={onOverlayClick}
                   animate={{ opacity: 1 }}
                 />
-                <BigMovie
+                <BigTv
                   style={{
                     top: scrollY.get() + 50,
                   }}
-                  layoutId={`${bigMovieMatch.params.tvId} + ${bigMovieMatch.params.subTitle}`}
+                  layoutId={`${bigTvMatch.params.tvId} + ${bigTvMatch.params.subTitle}`}
                 >
-                  {clickedMovie && (
+                  {clickedTv && (
                     <>
                       <BigCover
                         style={{
                           backgroundImage: `linear-gradient(to top, black, transparent), url(${makeImagePath(
-                            clickedMovie.backdrop_path,
+                            clickedTv.backdrop_path,
                             "w500"
                           )})`,
                         }}
                       />
-                      <BigTitle>{clickedMovie.name}</BigTitle>
+                      <BigTitle>{clickedTv.name}</BigTitle>
                       <DetailTv />
                     </>
                   )}
-                </BigMovie>
+                </BigTv>
               </>
             ) : null}
           </AnimatePresence>
