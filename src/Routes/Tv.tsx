@@ -144,13 +144,6 @@ const BigTitle = styled.h3`
   top: -40px;
   padding: 10px;
 `;
-const BigOverview = styled.p`
-  padding-left: 10px;
-  position: relative;
-  top: -40px;
-  font-weight: 500;
-  color: ${(props) => props.theme.white.lighter};
-`;
 const Subtitle = styled.h1`
   margin-bottom: 10px;
   font-size: 28px;

@@ -1,10 +1,9 @@
 import { useQuery } from "react-query";
-import { useLocation, useMatch, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { getMultiSearch, IMultiSearch, ISearch } from "../api";
 import styled from "styled-components";
 import { AnimatePresence, motion, useScroll } from "framer-motion";
 import { makeImagePath } from "../utils";
-import DetailMovie from "../Components/DetailMovie";
 import { useEffect, useState } from "react";
 import DetailSearch from "../Components/DetailSearch";
 const Wrapper = styled.div`
@@ -92,7 +91,7 @@ const Overlay = styled(motion.div)`
   background-color: rgba(0, 0, 0, 0.7);
   opacity: 0;
 `;
-const BigMovie = styled(motion.div)`
+const BigSearch = styled(motion.div)`
   position: absolute;
   width: 40vw;
   height: 80vh;
@@ -166,7 +165,6 @@ function Search() {
             variants={BoxVars}
             whileHover="hover"
             initial="normal"
-            // layoutId={search.id + ""}
             layoutId={searchClicked?.id + ""}
           >
             {search.backdrop_path || search.poster_path
@@ -186,7 +184,7 @@ function Search() {
               onClick={onOverlayClick}
               animate={{ opacity: 1 }}
             />
-            <BigMovie
+            <BigSearch
               style={{
                 top: scrollY.get() + 50,
               }}
@@ -206,7 +204,7 @@ function Search() {
                   <DetailSearch searchClicked={searchClicked} />
                 </>
               )}
-            </BigMovie>
+            </BigSearch>
           </>
         ) : null}
       </AnimatePresence>
